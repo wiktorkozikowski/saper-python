@@ -1,5 +1,6 @@
 import numpy as np
 import random as rd
+import pygame as pg
 
 def generate_board_nad_mines(size, num_mines):
 
@@ -29,10 +30,81 @@ def complite_board(board):
                 board[i][j] = count
     return board
 
+pg.init()
+window = pg.display.set_mode((600,700))
+
+button1 = pg.Rect(200, 200, 200, 50)
+button2 = pg.Rect(200, 300, 200, 50)
+button3 = pg.Rect(200, 400, 200, 50)
+button4 = pg.Rect(350, 500, 120, 50)
+button5 = pg.Rect(120, 500, 120, 50)
+
+button = {
+    'menu': [button1, button2, button3, button4, button5]
+}
+
+FONT = pg.font.SysFont('arial', 30)
+
+
+def menu():
+    run = True
+    hoise = None
+    while run:
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                run = False
+                choice = 'quit'
+            if event.type == pg.MOUSEBUTTONDOWN:
+                mouse_pos = event.pos
+                for idx, buton in enumerate(button['menu']):
+                    if buton.collidepoint(mouse_pos):
+                        if idx == 0:
+                            choice = 'easy'
+                            run = False
+                        elif idx == 1:
+                            choice = 'medium'
+                            run = False
+                        elif idx == 2:
+                            choice = 'hard'
+                            run = False
+                        elif idx == 3:
+                            choice = 'quit'
+                            run = False
+                        elif idx == 4:
+                            choice = 'stats'
+                            run = False
+
+        window.fill((55, 131, 224))
+        for _ in button['menu']:
+            pg.draw.rect(window, (179, 187, 196), _, border_radius=10)
+        pg.display.update()
+    return choice
+
+def user_choice(choice):
+    if choice == 'quit':
+        return None, None, None
+    elif choice == 'easy':
+        print("Wybrano EASY")
+        return 9, 9, 10
+    elif choice == 'medium':
+        print("Wybrano MEDIUM")
+        return 16, 16, 40
+    elif choice == 'hard':
+        print("Wybrano HARD")
+        return 16, 30, 99
+    elif choice == 'stats':
+        print("Wybrano STATS")
+        return None, None, None
+
 def main():
-    board = generate_board_nad_mines(10,15)
-    complit_board = complite_board(board)
-    print(board)
-    print()
-    print(complit_board)
+    run = True
+    while run:
+        choice = menu()
+        if choice == 'quit':
+            run = False
+        elif choice == 'stats':
+            print('in progres')
+        else:
+            x,y,m, = user_choice(choice)
+                   
 main()
