@@ -2,13 +2,13 @@ import numpy as np
 import random as rd
 import pygame as pg
 
-def generate_board_nad_mines(size, num_mines):
+def generate_board(size_x, size_y, num_mines):
 
-    board = np.zeros((size, size), dtype=int)
-    index = rd.sample(range(size * size), num_mines)
+    board = np.zeros((size_x, size_y), dtype=int)
+    index = rd.sample(range(size_x * size_y), num_mines)
     
     for i in index:
-        row, col = divmod(i, size) #divmod(a, b) == (a //b, a % b)#
+        row, col = divmod(i, size_y) #divmod(a, b) == (a //b, a % b)#
         board[row, col] = -1
     return board
 
@@ -31,7 +31,7 @@ def complite_board(board):
     return board
 
 pg.init()
-window = pg.display.set_mode((600,700))
+window = pg.display.set_mode((1200,1200))
 
 button1 = pg.Rect(200, 200, 200, 50)
 button2 = pg.Rect(200, 300, 200, 50)
@@ -96,6 +96,35 @@ def user_choice(choice):
         print("Wybrano STATS")
         return None, None, None
 
+def game_board(x_size, y_size):
+    run = True
+    while run:
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                run = False
+
+        window.fill((55, 131, 224))   
+        board_width = x_size * 36 + 5 
+        board_height = y_size * 36 + 5
+        offset_x = (1200 - board_height)//2
+        offset_y = (1200 - board_width)//2
+
+        base = pg.Rect(offset_x - 15, offset_y - 15, board_height + 30, board_width + 30)
+        pg.draw.rect(window, (168, 168, 168),base)
+       
+        base = pg.Rect(offset_x, offset_y, board_height, board_width)
+        pg.draw.rect(window, (89, 94, 99),base)
+
+
+
+        for i in range(y_size):
+             for j in range(x_size):
+                 rect = pg.Rect(offset_x + i*36 + 5, offset_y+ j*36 + 5, 32, 32)
+                 pg.draw.rect(window, (168, 168, 168),rect)
+                 
+        pg.display.update()
+       
+
 def main():
     run = True
     while run:
@@ -105,6 +134,8 @@ def main():
         elif choice == 'stats':
             print('in progres')
         else:
-            x,y,m, = user_choice(choice)
+            x_size, y_size ,mines, = user_choice(choice)
+            game_board(x_size, y_size)
+
                    
 main()
