@@ -121,16 +121,19 @@ def game_board(x_size, y_size):
     offset_y = (1200 - board_height) // 2
 
     window.fill((55, 131, 224))
-    base = pg.Rect(offset_x, offset_y, board_width, board_height)
-    pg.draw.rect(window, (89, 94, 99), base)
+    base = pg.Rect(offset_x - 20, offset_y - 180, board_width + 40, board_height + 200,)
+    pg.draw.rect(window, (171, 171, 171), base, border_radius=10)
+
+    base2 = pg.Rect(offset_x, offset_y, board_width, board_height)
+    pg.draw.rect(window, (89, 94, 99), base2)
 
     for i in range(x_size + 1):
-        y = offset_y + i * cell_size + 2
-        pg.draw.line(window, (0, 0, 0), (offset_x + 5, y), (offset_x + board_width - 5, y), 2)
+        y = offset_y + i * cell_size + 3
+        pg.draw.line(window, (0, 0, 0), (offset_x + 5, y), (offset_x + board_width - 5, y), 1)
 
     for j in range(y_size + 1):
-        x = offset_x + j * cell_size + 2
-        pg.draw.line(window, (0, 0, 0), (x, offset_y + 5), (x, offset_y + board_height - 5), 2)
+        x = offset_x + j * cell_size + 3
+        pg.draw.line(window, (0, 0, 0), (x, offset_y + 5), (x, offset_y + board_height - 5), 1)
 
     for i in range(x_size):
         for j in range(y_size):
