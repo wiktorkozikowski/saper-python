@@ -2,63 +2,65 @@ import numpy as np
 import random as rd
 import pygame as pg
 
-def generate_board(size_x, size_y, x_click, y_click, num_mines):
+pg.init()
+window = pg.display.set_mode((1200,1200))
 
+def generate_board(size_x, size_y, x_click, y_click, num_mines):
     board = np.zeros((size_x, size_y), dtype=int)
-    clicked_index = x_click * size_y + y_click
-    all_indices = list(range(size_x * size_y))
-    all_indices.remove(clicked_index)
-    index = rd.sample(all_indices, num_mines)
-    
+    all_indices = set(range(size_x * size_y))
+
+    # Wyznacz indeksy klikniętego pola i 8 sąsiadów
+    forbidden = set()
+    for dx in [-1, 0, 1]:
+        for dy in [-1, 0, 1]:
+            ni, nj = x_click + dx, y_click + dy
+            if 0 <= ni < size_x and 0 <= nj < size_y:
+                forbidden.add(ni * size_y + nj)
+
+    # Usuń zabronione indeksy
+    available_indices = list(all_indices - forbidden)
+    index = rd.sample(available_indices, num_mines)
+
     for i in index:
         row, col = divmod(i, size_y)
         board[row, col] = -1
 
-    size = board.shape[0]
-    
-    for i in range(size):
-        for j in range(size):
+    # Liczenie sąsiadujących min
+    for i in range(size_x):
+        for j in range(size_y):
             if board[i][j] == 0:
                 count = 0
- 
                 for dx in [-1, 0, 1]:
                     for dy in [-1, 0, 1]:
                         if dx == 0 and dy == 0:
-                            continue  
+                            continue
                         ni, nj = i + dx, j + dy
-                        if 0 <= ni < size and 0 <= nj < size:
+                        if 0 <= ni < size_x and 0 <= nj < size_y:
                             if board[ni][nj] == -1:
                                 count += 1
                 board[i][j] = count
 
     return board
 
-
-
-pg.init()
-window = pg.display.set_mode((1200,1200))
-
-button1 = pg.Rect(200, 200, 200, 50)
-button2 = pg.Rect(200, 300, 200, 50)
-button3 = pg.Rect(200, 400, 200, 50)
-button4 = pg.Rect(350, 500, 120, 50)
-button5 = pg.Rect(120, 500, 120, 50)
-back = pg.Rect(0, 0, 120, 50)
-close = pg.Rect(50, 50, 120, 50)
-
-button = {
-    'menu': [button1, button2, button3, button4, button5],
-    'controls': [back, close]
-}
-
-text = {
-    'menu': [button1, button2, button3, button4, button5],
-    'controls': [back, close]
-}
-FONT = pg.font.SysFont('arial', 30)
-
-
 def menu():
+
+    button1 = pg.Rect(200, 200, 200, 50)
+    button2 = pg.Rect(200, 300, 200, 50)
+    button3 = pg.Rect(200, 400, 200, 50)
+    button4 = pg.Rect(350, 500, 120, 50)
+    button5 = pg.Rect(120, 500, 120, 50)
+    back = pg.Rect(0, 0, 120, 50)
+    close = pg.Rect(50, 50, 120, 50)
+
+    button = {
+        'menu': [button1, button2, button3, button4, button5],
+        'controls': [back, close]
+    }
+
+    text = {
+        'menu': [button1, button2, button3, button4, button5],
+        'controls': [back, close]}
+
     run = True
     hoise = None
     while run:
@@ -165,7 +167,7 @@ def main_game(choice):
                         print(f"Kliknięto pole ({i}, {j})")
                         print(f"wygenerowano plansze:\n{board}")
                         # logika gry
-                    elif rect.collidepoint(mouse_pos) and board_drawn:
+                    elif rect.collidepoint(mouse_pos):
                         if board[i,j] == -1:
                             print("przegrałeś")
                         else:
@@ -173,9 +175,6 @@ def main_game(choice):
 
                         # tutaj logika gry dla kolejnych kliknięć
                         
-
-    
-
 def main():
     run = True
     while run:
