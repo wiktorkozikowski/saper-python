@@ -111,22 +111,36 @@ def user_choice(choice):
 
 def game_board(x_size, y_size):
     rects = []
-    board_width = x_size * 36 + 5 
-    board_height = y_size * 36 + 5
-    offset_x = (1200 - board_height)//2
-    offset_y = (1200 - board_width)//2
+    cell_size = 36
+
+
+    board_width = y_size * cell_size + 5  
+    board_height = x_size * cell_size + 5   
+
+    offset_x = (1200 - board_width) // 2
+    offset_y = (1200 - board_height) // 2
 
     window.fill((55, 131, 224))
-    base = pg.Rect(offset_x, offset_y, board_height, board_width)
+    base = pg.Rect(offset_x, offset_y, board_width, board_height)
     pg.draw.rect(window, (89, 94, 99), base)
 
-    for i in range(y_size):
-        for j in range(x_size):
-            rect = pg.Rect(offset_x + i*36 + 5, offset_y + j*36 + 5, 32, 32)
+    for i in range(x_size + 1):
+        y = offset_y + i * cell_size + 2
+        pg.draw.line(window, (0, 0, 0), (offset_x + 5, y), (offset_x + board_width - 5, y), 2)
+
+    for j in range(y_size + 1):
+        x = offset_x + j * cell_size + 2
+        pg.draw.line(window, (0, 0, 0), (x, offset_y + 5), (x, offset_y + board_height - 5), 2)
+
+    for i in range(x_size):
+        for j in range(y_size):
+            rect = pg.Rect(offset_x + j * cell_size + 5, offset_y + i * cell_size + 5, 32, 32)
             pg.draw.rect(window, (168, 168, 168), rect)
-            rects.append((rect, i, j))
+            rects.append((rect, i, j))  
+
     pg.display.update()
     return rects
+
        
 def main_game(choice):
     x_size, y_size, mines = user_choice(choice)
@@ -149,10 +163,10 @@ def main_game(choice):
                         print(f"wygenerowano plansze:\n{board}")
                         # logika gry
                     elif rect.collidepoint(mouse_pos) and board_drawn:
-                        if board[j,] == -1:
+                        if board[i,j] == -1:
                             print("przegrałeś")
                         else:
-                            print(f"kliknięto w {board[j,i]}")
+                            print(f"kliknięto w {board[i,j]}")
 
                         # tutaj logika gry dla kolejnych kliknięć
                         
