@@ -2,33 +2,38 @@ import numpy as np
 import random as rd
 import pygame as pg
 
-def generate_board(size_x, size_y, num_mines):
+def generate_board(size_x, size_y, x_click, y_click, num_mines):
 
     board = np.zeros((size_x, size_y), dtype=int)
-    index = rd.sample(range(size_x * size_y), num_mines)
+    clicked_index = x_click * size_y + y_click
+    all_indices = list(range(size_x * size_y))
+    all_indices.remove(clicked_index)
+    index = rd.sample(all_indices, num_mines)
     
     for i in index:
-        row, col = divmod(i, size_y) #divmod(a, b) == (a //b, a % b)#
+        row, col = divmod(i, size_y)
         board[row, col] = -1
-    return board
 
-def complite_board(board):
     size = board.shape[0]
+    
     for i in range(size):
         for j in range(size):
             if board[i][j] == 0:
                 count = 0
-                # Sprawdzamy wszystkie sąsiednie pola (8 kierunków)
+ 
                 for dx in [-1, 0, 1]:
                     for dy in [-1, 0, 1]:
                         if dx == 0 and dy == 0:
-                            continue  # pomijamy środek, czyli samo pole
+                            continue  
                         ni, nj = i + dx, j + dy
                         if 0 <= ni < size and 0 <= nj < size:
                             if board[ni][nj] == -1:
                                 count += 1
                 board[i][j] = count
+
     return board
+
+
 
 pg.init()
 window = pg.display.set_mode((1200,1200))
@@ -126,6 +131,8 @@ def game_board(x_size, y_size):
 def main_game(choice):
     x_size, y_size, mines = user_choice(choice)
     rects = game_board(x_size, y_size)  # rysowanie i zapis prostokątów
+    board_drawn = False
+    board = None
 
     run = True
     while run:
@@ -135,9 +142,20 @@ def main_game(choice):
             if event.type == pg.MOUSEBUTTONDOWN:
                 mouse_pos = event.pos
                 for rect, i, j in rects:
-                    if rect.collidepoint(mouse_pos):
+                    if rect.collidepoint(mouse_pos) and not board_drawn:
+                        board = generate_board(x_size, y_size,i ,j, mines)
+                        board_drawn = True
                         print(f"Kliknięto pole ({i}, {j})")
+                        print(f"wygenerowano plansze:\n{board}")
                         # logika gry
+                    elif rect.collidepoint(mouse_pos) and board_drawn:
+                        if board[j,] == -1:
+                            print("przegrałeś")
+                        else:
+                            print(f"kliknięto w {board[j,i]}")
+
+                        # tutaj logika gry dla kolejnych kliknięć
+                        
 
     
 
