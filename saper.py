@@ -106,9 +106,10 @@ def user_choice(choice):
         print("Wybrano STATS")
         return None, None, None
 
-def game_board(x_size, y_size, revealed_index):
+def game_board(x_size, y_size, revealed_index, board = None):
     rects = []
     cell_size = 36
+    color = {'1':[32, 149, 247],'2':[48, 156, 23], '3':[204, 158, 31], '4':[120, 31, 204], '5':[122, 65, 1], '6':[212, 3, 166], '7':[255, 117, 11], '8':[153, 0, 0], }
 
     board_width = y_size * cell_size + 5  
     board_height = x_size * cell_size + 5   
@@ -117,6 +118,7 @@ def game_board(x_size, y_size, revealed_index):
     offset_y = (1200 - board_height) // 2
 
     window.fill((55, 131, 224))
+
     base = pg.Rect(offset_x - 20, offset_y - 180, board_width + 40, board_height + 200,)
     pg.draw.rect(window, (171, 171, 171), base, border_radius=10)
 
@@ -141,7 +143,19 @@ def game_board(x_size, y_size, revealed_index):
             if not revealed_bool[i, j]:
                 rect = pg.Rect(offset_x + j * cell_size + 5, offset_y + i * cell_size + 5, 32, 32)
                 pg.draw.rect(window, (168, 168, 168), rect)
-                rects.append((rect, i, j))  
+                rects.append((rect, i, j))
+            else:
+                rect = pg.Rect(offset_x + j * cell_size + 5, offset_y + i * cell_size + 5, 32, 32)
+                pg.draw.rect(window, (220, 220, 220), rect)
+                rects.append((rect, i, j))
+
+                if board is not None and board[i, j] > 0:
+                    num = str(board[i, j])
+                    font = pg.font.SysFont('arial', 24)
+
+                    num_color = color.get(num, (0, 0, 0))
+                    text_surface = font.render(num, True, num_color)
+                    window.blit(text_surface, (rect.x + 7, rect.y + 4))
 
     pg.display.update()
     return rects
@@ -167,7 +181,7 @@ def main_game(choice):
                         print(f"Kliknięto pole ({i}, {j})")
                         print(f"wygenerowano plansze:\n{board}")
                         rev += revealed_map(i, j, board)
-                        rects = game_board(x_size, y_size, rev)
+                        rects = game_board(x_size, y_size, rev, board)
 
                     elif rect.collidepoint(mouse_pos):
                         if board[i, j] == -1:
@@ -175,12 +189,12 @@ def main_game(choice):
                         elif board[i, j] == 0:
                             print(f"kliknięto w {board[i, j]}")
                             rev += revealed_map(i, j, board)
-                            rects = game_board(x_size, y_size, rev)
+                            rects = game_board(x_size, y_size, rev, board)
                             print(rev)
                         else:
                             print(f"kliknięto w {board[i, j]}")
-                            rev += revealed_map(i, j, board)
-                            rects = game_board(x_size, y_size, rev)
+                            rev.append([i, j])
+                            rects = game_board(x_size, y_size, rev, board)
                             print(rev)
 
 def revealed_map(x_click, y_click, Arr):
