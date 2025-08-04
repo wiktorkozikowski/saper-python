@@ -9,7 +9,6 @@ def generate_board(size_x, size_y, x_click, y_click, num_mines):
     board = np.zeros((size_x, size_y), dtype=int)
     all_indices = set(range(size_x * size_y))
 
-    # Wyznacz indeksy klikniętego pola i 8 sąsiadów
     forbidden = set()
     for dx in [-1, 0, 1]:
         for dy in [-1, 0, 1]:
@@ -17,7 +16,6 @@ def generate_board(size_x, size_y, x_click, y_click, num_mines):
             if 0 <= ni < size_x and 0 <= nj < size_y:
                 forbidden.add(ni * size_y + nj)
 
-    # Usuń zabronione indeksy
     available_indices = list(all_indices - forbidden)
     index = rd.sample(available_indices, num_mines)
 
@@ -25,7 +23,6 @@ def generate_board(size_x, size_y, x_click, y_click, num_mines):
         row, col = divmod(i, size_y)
         board[row, col] = -1
 
-    # Liczenie sąsiadujących min
     for i in range(size_x):
         for j in range(size_y):
             if board[i][j] == 0:
@@ -43,7 +40,6 @@ def generate_board(size_x, size_y, x_click, y_click, num_mines):
     return board
 
 def menu():
-
     button1 = pg.Rect(200, 200, 200, 50)
     button2 = pg.Rect(200, 300, 200, 50)
     button3 = pg.Rect(200, 400, 200, 50)
@@ -62,7 +58,7 @@ def menu():
         'controls': [back, close]}
 
     run = True
-    hoise = None
+    choice = None
     while run:
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -100,7 +96,6 @@ def user_choice(choice):
     elif choice == 'easy':
         print("Wybrano EASY")
         return 9, 9, 10
-    
     elif choice == 'medium':
         print("Wybrano MEDIUM")
         return 16, 16, 40
@@ -111,10 +106,9 @@ def user_choice(choice):
         print("Wybrano STATS")
         return None, None, None
 
-def game_board(x_size, y_size):
+def game_board(x_size, y_size, revealed_index):
     rects = []
     cell_size = 36
-
 
     board_width = y_size * cell_size + 5  
     board_height = x_size * cell_size + 5   
@@ -137,19 +131,25 @@ def game_board(x_size, y_size):
         x = offset_x + j * cell_size + 3
         pg.draw.line(window, (0, 0, 0), (x, offset_y + 5), (x, offset_y + board_height - 5), 1)
 
+    revealed_bool = np.zeros((x_size, y_size), dtype=bool)
+    for item in revealed_index:
+        if isinstance(item, (list, tuple)) and len(item) == 2:
+            revealed_bool[item[0], item[1]] = True
+
     for i in range(x_size):
         for j in range(y_size):
-            rect = pg.Rect(offset_x + j * cell_size + 5, offset_y + i * cell_size + 5, 32, 32)
-            pg.draw.rect(window, (168, 168, 168), rect)
-            rects.append((rect, i, j))  
+            if not revealed_bool[i, j]:
+                rect = pg.Rect(offset_x + j * cell_size + 5, offset_y + i * cell_size + 5, 32, 32)
+                pg.draw.rect(window, (168, 168, 168), rect)
+                rects.append((rect, i, j))  
 
     pg.display.update()
     return rects
 
-       
 def main_game(choice):
     x_size, y_size, mines = user_choice(choice)
-    rects = game_board(x_size, y_size)  # rysowanie i zapis prostokątów
+    rev = []
+    rects = game_board(x_size, y_size, rev)  
     board_drawn = False
     board = None
 
@@ -162,19 +162,48 @@ def main_game(choice):
                 mouse_pos = event.pos
                 for rect, i, j in rects:
                     if rect.collidepoint(mouse_pos) and not board_drawn:
-                        board = generate_board(x_size, y_size,i ,j, mines)
+                        board = generate_board(x_size, y_size, i, j, mines)
                         board_drawn = True
                         print(f"Kliknięto pole ({i}, {j})")
                         print(f"wygenerowano plansze:\n{board}")
-                        # logika gry
-                    elif rect.collidepoint(mouse_pos):
-                        if board[i,j] == -1:
-                            print("przegrałeś")
-                        else:
-                            print(f"kliknięto w {board[i,j]}")
+                        rev += revealed_map(i, j, board)
+                        rects = game_board(x_size, y_size, rev)
 
-                        # tutaj logika gry dla kolejnych kliknięć
-                        
+                    elif rect.collidepoint(mouse_pos):
+                        if board[i, j] == -1:
+                            print("przegrałeś")
+                        elif board[i, j] == 0:
+                            print(f"kliknięto w {board[i, j]}")
+                            rev += revealed_map(i, j, board)
+                            rects = game_board(x_size, y_size, rev)
+                            print(rev)
+                        else:
+                            print(f"kliknięto w {board[i, j]}")
+                            rev += revealed_map(i, j, board)
+                            rects = game_board(x_size, y_size, rev)
+                            print(rev)
+
+def revealed_map(x_click, y_click, Arr):
+    revealed_index = []
+    queue = []
+    main_point = [x_click, y_click]
+    revealed_index.append(main_point)
+    queue.append(main_point)
+
+    while queue:
+        current = queue.pop(0)
+        for x in [-1, 0, 1]:
+            for y in [-1, 0, 1]:
+                neighbor = [current[0] + x, current[1] + y]
+                if 0 <= neighbor[0] < Arr.shape[0] and 0 <= neighbor[1] < Arr.shape[1]:
+                    if Arr[neighbor[0], neighbor[1]] == 0 and neighbor not in revealed_index:
+                        revealed_index.append(neighbor)
+                        queue.append(neighbor)
+                    elif Arr[neighbor[0], neighbor[1]] > 0 and neighbor not in revealed_index:
+                        revealed_index.append(neighbor)
+
+    return revealed_index
+
 def main():
     run = True
     while run:
@@ -184,7 +213,5 @@ def main():
         elif choice == 'stats':
             print('in progres')
         else:
-            main_game(choice)
-
-                   
+            main_game(choice)          
 main()
