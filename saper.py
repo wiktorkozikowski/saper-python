@@ -40,11 +40,11 @@ def generate_board(size_x, size_y, x_click, y_click, num_mines):
     return board
 
 def menu():
-    button1 = pg.Rect(200, 200, 200, 50)
-    button2 = pg.Rect(200, 300, 200, 50)
-    button3 = pg.Rect(200, 400, 200, 50)
-    button4 = pg.Rect(350, 500, 120, 50)
-    button5 = pg.Rect(120, 500, 120, 50)
+    button1 = pg.Rect(450, 350, 200, 50)
+    button2 = pg.Rect(450, 450, 200, 50)
+    button3 = pg.Rect(450, 550, 200, 50)
+    button4 = pg.Rect(600, 650, 120, 50)
+    button5 = pg.Rect(370, 650, 120, 50)
     back = pg.Rect(0, 0, 120, 50)
     close = pg.Rect(50, 50, 120, 50)
 
@@ -52,10 +52,12 @@ def menu():
         'menu': [button1, button2, button3, button4, button5],
         'controls': [back, close]
     }
-
+    
+    font = pg.font.SysFont('arial', 32)
+    
     text = {
-        'menu': [button1, button2, button3, button4, button5],
-        'controls': [back, close]}
+        'menu': ['Easy', 'Midium', 'Hard', 'Quit', 'Stats'],
+        'controls': ['back', 'close']}
 
     run = True
     choice = None
@@ -85,9 +87,16 @@ def menu():
                             run = False
 
         window.fill((55, 131, 224))
-        for _ in button['menu']:
-            pg.draw.rect(window, (179, 187, 196), _, border_radius=10)
+
+        for idx, rect in enumerate(button['menu']):
+
+            pg.draw.rect(window, (179, 187, 196), rect, border_radius=10)
+            text_surf = font.render(text['menu'][idx], True, (0, 0, 0))
+            text_rect = text_surf.get_rect(center=rect.center)
+            window.blit(text_surf, text_rect)
+
         pg.display.update()
+    
     return choice
 
 def user_choice(choice):
