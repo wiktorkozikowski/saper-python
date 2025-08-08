@@ -3,7 +3,6 @@ import random as rd
 import pygame as pg
 
 pg.init()
-window = pg.display.set_mode((1200,1200))
 
 def generate_board(size_x, size_y, x_click, y_click, num_mines):
     board = np.zeros((size_x, size_y), dtype=int)
@@ -40,11 +39,16 @@ def generate_board(size_x, size_y, x_click, y_click, num_mines):
     return board
 
 def menu():
-    button1 = pg.Rect(450, 350, 200, 50)
-    button2 = pg.Rect(450, 450, 200, 50)
-    button3 = pg.Rect(450, 550, 200, 50)
-    button4 = pg.Rect(600, 650, 120, 50)
-    button5 = pg.Rect(370, 650, 120, 50)
+    window = pg.display.set_mode((600,600))
+
+    x = (600 - 200) / 2
+    y = (600 - 50) / 2
+
+    button1 = pg.Rect(x, y - 100, 200, 50)
+    button2 = pg.Rect(x, y, 200, 50)
+    button3 = pg.Rect(x, y + 100, 200, 50)
+    button4 = pg.Rect(x + 150, y + 200, 120, 50)
+    button5 = pg.Rect(x - 75, y + 200, 120, 50)
     back = pg.Rect(0, 0, 120, 50)
     close = pg.Rect(50, 50, 120, 50)
 
@@ -92,7 +96,7 @@ def menu():
 
             pg.draw.rect(window, (179, 187, 196), rect, border_radius=10)
             text_surf = font.render(text['menu'][idx], True, (0, 0, 0))
-            text_rect = text_surf.get_rect(center=rect.center)
+            text_rect = text_surf.get_rect(center = rect.center)
             window.blit(text_surf, text_rect)
 
         pg.display.update()
@@ -116,9 +120,17 @@ def user_choice(choice):
         return None, None, None
 
 def game_board(x_size, y_size, revealed_index, board = None):
+    window = pg.display.set_mode((1200,1200))
     rects = []
     cell_size = 36
-    color = {'1':[32, 149, 247],'2':[48, 156, 23], '3':[204, 158, 31], '4':[120, 31, 204], '5':[122, 65, 1], '6':[212, 3, 166], '7':[255, 117, 11], '8':[153, 0, 0], }
+    color = {'1':[32, 149, 247],
+             '2':[48, 156, 23], 
+             '3':[204, 158, 31], 
+             '4':[120, 31, 204], 
+             '5':[122, 65, 1], 
+             '6':[212, 3, 166], 
+             '7':[255, 117, 11], 
+             '8':[153, 0, 0], }
 
     board_width = y_size * cell_size + 5  
     board_height = x_size * cell_size + 5   
