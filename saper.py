@@ -3,6 +3,7 @@ import random as rd
 import pygame as pg
 
 pg.init()
+window = pg.display.set_mode((1200,1200))
 
 def generate_board(size_x, size_y, x_click, y_click, num_mines):
     board = np.zeros((size_x, size_y), dtype=int)
@@ -38,11 +39,12 @@ def generate_board(size_x, size_y, x_click, y_click, num_mines):
 
     return board
 
-def menu():
-    window = pg.display.set_mode((600,600))
 
-    x = (600 - 200) / 2
-    y = (600 - 50) / 2
+
+def menu():
+
+    x = (1200 - 200) / 2
+    y = (1200 - 50) / 2
 
     button1 = pg.Rect(x, y - 100, 200, 50)
     button2 = pg.Rect(x, y, 200, 50)
@@ -119,8 +121,9 @@ def user_choice(choice):
         print("Wybrano STATS")
         return None, None, None
 
+# def timer_and_scor():
+
 def game_board(x_size, y_size, revealed_index, board = None):
-    window = pg.display.set_mode((1200,1200))
     rects = []
     cell_size = 36
     color = {'1':[32, 149, 247],
